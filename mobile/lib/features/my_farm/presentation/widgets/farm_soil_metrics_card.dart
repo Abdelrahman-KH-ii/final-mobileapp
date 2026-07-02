@@ -1,6 +1,7 @@
 import 'package:farmtec/core/l10n/app_localizations.dart';
 import 'package:farmtec/core/themes/app_fonts.dart';
 import 'package:farmtec/core/themes/pallete.dart';
+import 'package:farmtec/features/farm/domain/entities/farm.dart';
 import 'package:farmtec/features/my_farm/presentation/widgets/my_farm_card_style.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +22,7 @@ class _SoilDetail {
 }
 
 class FarmSoilMetricsCard extends StatelessWidget {
+  final Farm? farm;
   final bool isDark;
   final Color cardColor;
   final Color textColor;
@@ -28,6 +30,7 @@ class FarmSoilMetricsCard extends StatelessWidget {
 
   const FarmSoilMetricsCard({
     super.key,
+    this.farm,
     required this.isDark,
     required this.cardColor,
     required this.textColor,
@@ -37,31 +40,37 @@ class FarmSoilMetricsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    
+    final double dynamicPh = farm?.ph ?? 6.8;
+    final double dynamicMoisture = farm?.soilMoisture ?? 45.0;
+    final String dynamicNitrogen = farm?.nitrogen != null ? '${farm!.nitrogen!.round()} ppm' : l.tr('medium');
+    final String dynamicTexture = farm?.soilType.isNotEmpty == true ? farm!.soilType : 'Loam';
+
     final details = [
       _SoilDetail(
         icon: Icons.thermostat_rounded,
         labelKey: 'ph_level',
-        value: '6.8',
-        statusKey: 'optimal',
-        color: Color(0xFF7CB342),
+        value: dynamicPh.toStringAsFixed(1),
+        statusKey: (dynamicPh >= 6.0 && dynamicPh <= 7.5) ? 'optimal' : null,
+        color: const Color(0xFF7CB342),
       ),
       _SoilDetail(
-        icon: Icons.grass_rounded,
-        labelKey: 'organic_matter',
-        value: '2.9%',
-        color: Color(0xFF4CAF50),
+        icon: Icons.water_drop_rounded,
+        labelKey: 'moisture',
+        value: '${dynamicMoisture.round()}%',
+        color: const Color(0xFF4CAF50),
       ),
       _SoilDetail(
         icon: Icons.eco_rounded,
         labelKey: 'nitrogen',
-        value: l.tr('medium'),
-        color: Color(0xFF26A69A),
+        value: dynamicNitrogen,
+        color: const Color(0xFF26A69A),
       ),
       _SoilDetail(
         icon: Icons.layers_rounded,
         labelKey: 'texture',
-        value: 'Loam',
-        color: Color(0xFF42A5F5),
+        value: dynamicTexture,
+        color: const Color(0xFF42A5F5),
       ),
     ];
 
@@ -83,7 +92,7 @@ class FarmSoilMetricsCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '74%',
+                      '${dynamicMoisture.round()}%',
                       style: AppFonts.font(
                         fontSize: 36,
                         fontWeight: FontWeight.w800,
@@ -92,7 +101,7 @@ class FarmSoilMetricsCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      l.tr('overall_soil_health'),
+                      l.tr('moisture'),
                       style: AppFonts.font(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -109,7 +118,7 @@ class FarmSoilMetricsCard extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     CircularProgressIndicator(
-                      value: 0.74,
+                      value: dynamicMoisture / 100.0,
                       strokeWidth: 8,
                       valueColor: AlwaysStoppedAnimation(
                         isDark ? Colors.greenAccent : const Color(0xFF4CAF50),
@@ -120,7 +129,7 @@ class FarmSoilMetricsCard extends StatelessWidget {
                     ),
                     Center(
                       child: Text(
-                        '74%',
+                        '${dynamicMoisture.round()}%',
                         style: AppFonts.font(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -195,7 +204,7 @@ class FarmSoilMetricsCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l.tr(detail.labelKey),
+                  l.tr(detail.labelKey) ?? detail.labelKey,
                   style: AppFonts.font(fontSize: 12, color: subColor),
                 ),
                 const SizedBox(height: 4),

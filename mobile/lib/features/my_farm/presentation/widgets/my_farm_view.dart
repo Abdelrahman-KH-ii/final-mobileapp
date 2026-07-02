@@ -275,6 +275,7 @@ class MyFarmView extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               FarmSoilMetricsCard(
+                farm: farm,
                 isDark: isDark,
                 cardColor: cardColor,
                 textColor: textColor,
