@@ -1,0 +1,31 @@
+# Django & REST Framework
+django>=4.2,<5.0
+djangorestframework
+djangorestframework-simplejwt
+drf-yasg
+django-cors-headers
+whitenoise
+
+# ML & Data Science
+numpy
+pandas
+scikit-learn
+joblib
+xarray
+netCDF4
+earthengine-api
+
+# Image Processing
+Pillow
+
+# Deep Learning
+torch
+torchvision
+transformers
+accelerate
+huggingface_hub
+
+# Environment
+python-dotenv
+psycopg2-binary
+dj-database-url
