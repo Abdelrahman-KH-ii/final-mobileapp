@@ -170,6 +170,8 @@ def _month_date_range(year: int, month: int) -> tuple[str, str]:
 
 
 def classify_soil_texture(row: pd.Series) -> str:
+    if pd.isna(row["soil_clay"]) or pd.isna(row["soil_sand"]):
+        return np.nan
     if row["soil_clay"] > CLAY_THRESHOLD:
         return "Clay"
     if row["soil_sand"] > SAND_THRESHOLD:
@@ -179,20 +181,26 @@ def classify_soil_texture(row: pd.Series) -> str:
 
 def add_agronomic_features(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
-    df["precip_sum"] = df["precip_sum"].clip(lower=0.1)
-    df["aet_mean"] = df["aet_mean"].clip(lower=0.1)
+    if "precip_sum" in df.columns:
+        df["precip_sum"] = df["precip_sum"].clip(lower=0.1)
+    if "aet_mean" in df.columns:
+        df["aet_mean"] = df["aet_mean"].clip(lower=0.1)
     if "soil_moisture" in df.columns:
         df["soil_moisture"] = df["soil_moisture"].clip(lower=0.1)
 
-    df["soil_texture_class"] = df.apply(classify_soil_texture, axis=1)
-    df["fertility_index"] = sum(
-        df[col] * weight for col, weight in FERTILITY_WEIGHTS.items()
-    )
+    if {"soil_clay", "soil_sand"}.issubset(df.columns):
+        df["soil_texture_class"] = df.apply(classify_soil_texture, axis=1)
 
-    if "pet_mean" in df.columns:
+    if all(col in df.columns for col in FERTILITY_WEIGHTS):
+        df["fertility_index"] = sum(
+            df[col] * weight for col, weight in FERTILITY_WEIGHTS.items()
+        )
+
+    if "precip_sum" in df.columns and "pet_mean" in df.columns:
         df["aridity_index"] = df["precip_sum"] / df["pet_mean"].replace(0, 0.1)
 
-    df["water_balance"] = df["precip_sum"] - df["aet_mean"]
+    if "precip_sum" in df.columns and "aet_mean" in df.columns:
+        df["water_balance"] = df["precip_sum"] - df["aet_mean"]
     return df
 
 
@@ -319,6 +327,7 @@ def step2_soilgrids() -> None:
     logger.info("Sampling SoilGrids at %s field locations…", f"{len(fields):,}")
     soil_df = apply_soil_scaling(sample_image(soil_stack, fc, scale=250))
     df_v3 = df_v2.merge(soil_df, on="Field_ID", how="left")
+    df_v3 = add_agronomic_features(df_v3)
     df_v3.to_csv(_out(OUTPUT_V3), index=False)
     logger.info("Saved %s rows → %s", f"{len(df_v3):,}", _out(OUTPUT_V3))
 
