@@ -14,8 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-farmtech-dev-key-change-in-production-2024")
 DEBUG = os.getenv("DEBUG", "False") == "True"
-_default_hosts = "localhost,127.0.0.1,backend,0.0.0.0,khalilab-backendmb.hf.space,.hf.space"
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", _default_hosts).split(",")
+ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
