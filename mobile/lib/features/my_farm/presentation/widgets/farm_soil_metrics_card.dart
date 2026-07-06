@@ -49,27 +49,27 @@ class FarmSoilMetricsCard extends StatelessWidget {
       _SoilDetail(
         icon: Icons.thermostat_rounded,
         labelKey: 'ph_level',
-        value: '6.8',
-        statusKey: 'optimal',
-        color: Color(0xFF7CB342),
+        value: farm?.ph != null ? l.convertNumbers(farm!.ph!.toStringAsFixed(1)) : l.convertNumbers('6.8'),
+        statusKey: farm?.ph != null && farm!.ph! >= 6.0 && farm!.ph! <= 7.5 ? 'optimal' : null,
+        color: const Color(0xFF7CB342),
       ),
       _SoilDetail(
         icon: Icons.grass_rounded,
         labelKey: 'organic_matter',
-        value: '2.9%',
-        color: Color(0xFF4CAF50),
+        value: farm?.soilMoisture != null ? '${l.convertNumbers(farm!.soilMoisture!.toStringAsFixed(1))}%' : l.convertNumbers('2.9%'),
+        color: const Color(0xFF4CAF50),
       ),
       _SoilDetail(
         icon: Icons.eco_rounded,
         labelKey: 'nitrogen',
-        value: l.tr('medium'),
-        color: Color(0xFF26A69A),
+        value: farm?.nitrogen != null ? '${l.convertNumbers(farm!.nitrogen!.toStringAsFixed(0))} ppm' : l.tr('medium'),
+        color: const Color(0xFF26A69A),
       ),
       _SoilDetail(
         icon: Icons.layers_rounded,
         labelKey: 'texture',
-        value: 'Loam',
-        color: Color(0xFF42A5F5),
+        value: farm != null && farm.soilType.isNotEmpty ? farm.soilType : 'Loam',
+        color: const Color(0xFF42A5F5),
       ),
     ];
 

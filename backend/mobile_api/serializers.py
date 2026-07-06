@@ -16,7 +16,16 @@ class MobileUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'email', 'username', 'phone_number', 'full_name', 'role', 'location', 'date_joined')
-        read_only_fields = ('id', 'email', 'date_joined')
+        read_only_fields = ('id', 'date_joined')
+
+    def validate_email(self, value):
+        user = self.instance
+        qs = User.objects.filter(email=value)
+        if user:
+            qs = qs.exclude(pk=user.pk)
+        if qs.exists():
+            raise serializers.ValidationError("Email already in use.")
+        return value
 
 
 class MobileRegisterSerializer(serializers.Serializer):
