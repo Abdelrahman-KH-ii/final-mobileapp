@@ -412,7 +412,7 @@ class _FarmLocationCardState extends State<FarmLocationCard> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'NDVI',
+                              l.tr('vegetation_health'),
                               style: AppFonts.font(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
@@ -432,24 +432,10 @@ class _FarmLocationCardState extends State<FarmLocationCard> {
                     ),
                   );
                 },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.open_in_new_rounded,
-                      size: 14,
-                      color: Pallete.primary,
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      l.tr('view_map'),
-                      style: AppFonts.font(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: Pallete.primary,
-                      ),
-                    ),
-                  ],
+                child: const Icon(
+                  Icons.open_in_new_rounded,
+                  size: 14,
+                  color: Pallete.primary,
                 ),
               ),
             ],

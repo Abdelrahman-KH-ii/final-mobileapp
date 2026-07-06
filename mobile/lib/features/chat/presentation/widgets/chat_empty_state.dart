@@ -2,7 +2,6 @@ import 'package:farmtec/core/l10n/app_localizations.dart';
 import 'package:farmtec/core/themes/app_fonts.dart';
 import 'package:farmtec/core/themes/pallete.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class ChatEmptyState extends StatelessWidget {
   final bool isDark;

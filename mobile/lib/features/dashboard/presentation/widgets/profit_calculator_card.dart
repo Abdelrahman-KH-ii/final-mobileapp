@@ -21,7 +21,9 @@ class ProfitCalculatorCard extends StatelessWidget {
 
   String _money(AppLocalizations l, double value) {
     final amount = l.convertNumbers(value.toStringAsFixed(2));
-    return l.isArabic ? '$amount د.إ' : '\$$amount';
+    final currency = l.tr('currency_egp');
+    if (l.isArabic) return '$amount $currency';
+    return '$currency $amount';
   }
 
   @override
@@ -30,14 +32,22 @@ class ProfitCalculatorCard extends StatelessWidget {
     final yieldPrediction = Provider.of<YieldPredictionService>(context);
 
     final estimatedYield = yieldPrediction.yieldPerHa;
-    final totalProfit = estimatedYield * marketPrice;
-    final rawUnit =
-        yieldPrediction.unit.replaceAll('/ha', '').trim().toLowerCase();
-    final unitLabel = l.trOr(rawUnit, rawUnit);
-    final priceLabel =
-        l.isArabic
-            ? '${l.convertNumbers(marketPrice.toStringAsFixed(2))} د.إ${l.tr('per_ton')}'
-            : '\$${l.convertNumbers(marketPrice.toStringAsFixed(2))}${l.tr('per_ton')}';
+    // Multiply incoming market price by 10 for display and calculations
+    final displayedMarketPrice = marketPrice * 10;
+    final totalProfit = estimatedYield * displayedMarketPrice;
+    final normalizedUnit = yieldPrediction.unit.trim().toLowerCase();
+    final unitLabel =
+        normalizedUnit.contains('feddan') ||
+                normalizedUnit.contains('ton') ||
+                normalizedUnit.contains('tonne') ||
+                normalizedUnit.contains('t/ha')
+            ? l.tr('tonnes_per_feddan')
+            : l.trOr(normalizedUnit, normalizedUnit);
+    final currency = l.tr('currency_egp');
+    final priceAmount = l.convertNumbers(displayedMarketPrice.toStringAsFixed(2));
+    final priceLabel = l.isArabic
+      ? '$priceAmount $currency ${l.tr('per_ton')}'
+      : '$currency $priceAmount${l.tr('per_ton')}';
 
     return Directionality(
       textDirection: TextDirection.ltr,

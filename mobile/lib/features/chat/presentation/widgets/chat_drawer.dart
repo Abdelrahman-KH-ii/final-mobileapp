@@ -3,7 +3,6 @@ import 'package:farmtec/core/themes/app_fonts.dart';
 import 'package:farmtec/core/themes/pallete.dart';
 import 'package:farmtec/features/chat/data/models/chat_message.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class ChatDrawer extends StatelessWidget {
   final bool isDark;

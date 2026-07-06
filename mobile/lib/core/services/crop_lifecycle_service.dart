@@ -1,4 +1,3 @@
-import 'package:farmtec/core/services/api_client.dart';
 import 'package:flutter/material.dart';
 
 class CropStage {
@@ -46,63 +45,16 @@ class CropLifecycleStatus {
 class CropLifecycleService {
   CropLifecycleService._();
 
-  static Map<String, CropLifecycle>? _remoteLifecycles;
-
-  static Future<void> ensureLoaded({ApiClient? apiClient}) async {
-    if (_remoteLifecycles != null) return;
-    final api = apiClient ?? ApiClient();
-    final response = await api.get('crops/lifecycle/', auth: false);
-    final data = response['data'] as Map<String, dynamic>;
-    _remoteLifecycles = {
-      for (final entry in data.entries)
-        entry.key: _parseLifecycle(entry.value as Map<String, dynamic>),
-    };
-  }
-
-  static CropLifecycle _parseLifecycle(Map<String, dynamic> json) {
-    final stages = (json['stages'] as List<dynamic>? ?? [])
-        .map(
-          (stage) => CropStage(
-            name: stage['name']?.toString() ?? '',
-            window: stage['window']?.toString() ?? '',
-            action: stage['action']?.toString() ?? '',
-            icon: _iconFromName(stage['icon']?.toString() ?? 'eco'),
-          ),
-        )
-        .toList();
-    return CropLifecycle(
-      crop: json['crop']?.toString() ?? '',
-      daysToHarvest: (json['daysToHarvest'] as num?)?.toInt() ?? 120,
-      stages: stages,
-    );
-  }
-
-  static IconData _iconFromName(String name) {
-    switch (name) {
-      case 'spa':
-        return Icons.spa_rounded;
-      case 'grass':
-        return Icons.grass_rounded;
-      case 'eco':
-        return Icons.eco_rounded;
-      case 'agriculture':
-        return Icons.agriculture_rounded;
-      case 'water_drop':
-        return Icons.water_drop_rounded;
-      case 'local_florist':
-        return Icons.local_florist_rounded;
-      case 'park':
-        return Icons.park_rounded;
-      default:
-        return Icons.eco_rounded;
-    }
-  }
-
-  static List<String> get availableCrops {
-    final remote = _remoteLifecycles;
-    if (remote == null) return const [];
-    return remote.values.map((lifecycle) => lifecycle.crop).toList();
-  }
+  static const availableCrops = [
+    'Wheat',
+    'Maize',
+    'Rice',
+    'Tomato',
+    'Potato',
+    'Mango',
+    'Jowar (Sorghum)',
+    'Green Fodder',
+  ];
 
   static String cropL10nKey(String crop) {
     switch (crop.toLowerCase()) {
@@ -117,11 +69,7 @@ class CropLifecycleService {
 
   static CropLifecycle forCrop(String crop) {
     final key = crop.toLowerCase();
-    final remote = _remoteLifecycles;
-    if (remote != null && remote.isNotEmpty) {
-      return remote[key] ?? remote.values.first;
-    }
-    throw StateError('Crop lifecycle data not loaded. Call ensureLoaded() first.');
+    return _lifecycles[key] ?? _lifecycles['wheat']!;
   }
 
   static CropLifecycleStatus statusFor(String crop, DateTime plantedAt) {

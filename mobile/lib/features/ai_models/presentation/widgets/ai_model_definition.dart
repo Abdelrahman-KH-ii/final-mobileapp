@@ -10,8 +10,6 @@ class AIModelDefinition {
   final String backgroundImage;
   final List<AIModelFieldDefinition> fields;
   final AIModelKind kind;
-  final bool useBackend;
-  final String httpMethod;
 
   const AIModelDefinition({
     required this.name,
@@ -21,8 +19,6 @@ class AIModelDefinition {
     required this.apiUrl,
     required this.fields,
     this.kind = AIModelKind.standard,
-    this.useBackend = true,
-    this.httpMethod = 'POST',
   });
 
   bool get isVisionModel => kind == AIModelKind.vision;
@@ -33,11 +29,13 @@ class AIModelFieldDefinition {
   final String label;
   final String hint;
   final TextInputType type;
+  final List<String>? options; // For dropdown/select fields
 
   const AIModelFieldDefinition({
     required this.key,
     required this.label,
     required this.hint,
     required this.type,
+    this.options,
   });
 }

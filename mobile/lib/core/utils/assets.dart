@@ -3,6 +3,7 @@ class Assets {
 
   // Splash
   static const String splashBackground = 'assets/images/splash_background.svg';
+  static const String splashIllustration = 'assets/images/splash_illus.png';
   static const String leafIcon = 'assets/images/leaf_icon.svg';
 
   // Auth

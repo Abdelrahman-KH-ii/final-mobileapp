@@ -2,7 +2,6 @@ import 'package:farmtec/core/l10n/app_localizations.dart';
 import 'package:farmtec/core/themes/app_fonts.dart';
 import 'package:farmtec/core/providers/locale_provider.dart';
 import 'package:farmtec/core/providers/theme_provider.dart';
-import 'package:farmtec/core/services/auth_service.dart';
 import 'package:farmtec/features/farm/presentation/providers/farm_provider.dart';
 import 'package:farmtec/core/services/notification_settings_service.dart';
 import 'package:farmtec/core/themes/app_theme_colors.dart';
@@ -27,16 +26,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String _calculateTotalArea(List<Farm> farms) {
-    double total = 0.0;
-    for (final f in farms) {
-      final numericStr = f.area.replaceAll(RegExp(r'[^0-9.]'), '');
-      final val = double.tryParse(numericStr) ?? 0.0;
-      total += val;
-    }
-    return '${total.toStringAsFixed(1)} ha';
-  }
-
   Widget _headerIconButton({
     required IconData icon,
     required VoidCallback onTap,
@@ -69,7 +58,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
     final farmService = Provider.of<FarmProvider>(context);
-    final authService = Provider.of<AuthService>(context);
     final notificationSettings = Provider.of<NotificationSettingsService>(
       context,
     );
@@ -198,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      authService.user?.fullName ?? authService.user?.username ?? '',
+                      l.tr('profile_user_name'),
                       style: AppFonts.font(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
@@ -224,7 +212,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             ProfileStatCard(
-                              _calculateTotalArea(farmService.farms),
+                              farm?.area ?? '42.2 ha',
                               l.tr('total_area'),
                               Icons.map_rounded,
                               const Color(0xFF4CAF50),

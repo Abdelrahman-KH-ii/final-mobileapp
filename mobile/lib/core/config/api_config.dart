@@ -9,12 +9,17 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 abstract final class ApiConfig {
   static const String _envUrl = String.fromEnvironment('FARMTEC_API_URL');
 
+  /// HuggingFace Space URL (production backend).
+  static const String _hfSpaceUrl = 'https://khalilab-backendmb.hf.space';
+
   /// Resolved API origin (no trailing slash).
   static String get baseUrl {
     if (_envUrl.isNotEmpty) return _stripTrailingSlash(_envUrl);
+    // Local dev overrides
     if (kIsWeb) return 'http://127.0.0.1:8000';
     if (Platform.isAndroid) return 'http://10.0.2.2:8000';
-    return 'http://127.0.0.1:8000';
+    // Default → HuggingFace Space (production)
+    return _hfSpaceUrl;
   }
 
   static String get mobileApiBase => '$baseUrl/api/mobile';

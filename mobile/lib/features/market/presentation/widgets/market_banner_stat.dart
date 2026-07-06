@@ -53,7 +53,9 @@ class MarketBannerStat extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    '\$${item.price.toStringAsFixed(2)}',
+                    l.isArabic
+                        ? 'ج.م${l.convertNumbers(item.price.toStringAsFixed(2))}'
+                        : 'EGP ${l.convertNumbers(item.price.toStringAsFixed(2))}',
                     style: AppFonts.font(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
@@ -71,7 +73,7 @@ class MarketBannerStat extends StatelessWidget {
                         size: 14,
                       ),
                       Text(
-                        '${item.changePercent.abs()}%',
+                        l.convertNumbers('${item.changePercent.abs().toStringAsFixed(2)}%'),
                         style: AppFonts.font(
                           fontSize: 8,
                           fontWeight: FontWeight.w800,

@@ -98,7 +98,9 @@ class MarketCommodityCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '\$${item.price.toStringAsFixed(2)}',
+                          l.isArabic
+                              ? 'ج.م${l.convertNumbers(item.price.toStringAsFixed(2))}'
+                              : 'EGP ${l.convertNumbers(item.price.toStringAsFixed(2))}',
                           style: AppFonts.font(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -116,7 +118,7 @@ class MarketCommodityCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            '${item.isUp ? '+' : ''}${item.changePercent}%',
+                            '${item.isUp ? '+' : ''}${l.convertNumbers(item.changePercent.toStringAsFixed(2))}%',
                             style: AppFonts.font(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
@@ -156,7 +158,7 @@ class MarketCommodityCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Q$quarter $year',
+                          l.convertNumbers('Q$quarter $year'),
                           style: AppFonts.font(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -164,7 +166,9 @@ class MarketCommodityCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '\$${price.toStringAsFixed(2)}',
+                          l.isArabic
+                              ? 'ج.م${l.convertNumbers(price.toStringAsFixed(2))}'
+                              : 'EGP ${l.convertNumbers(price.toStringAsFixed(2))}',
                           style: AppFonts.font(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
@@ -248,7 +252,9 @@ class MarketCommodityCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '\$${item.price.toStringAsFixed(2)}',
+                  l.isArabic
+                      ? 'ج.م${l.convertNumbers(item.price.toStringAsFixed(2))}'
+                      : 'EGP ${l.convertNumbers(item.price.toStringAsFixed(2))}',
                   style: AppFonts.font(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,

@@ -4,10 +4,6 @@ import 'package:farmtec/core/themes/app_theme_colors.dart';
 import 'package:farmtec/core/themes/pallete.dart';
 import 'package:farmtec/features/splash/presentation/widgets/splash_particles.dart';
 import 'package:farmtec/core/services/preferences_service.dart';
-import 'package:farmtec/core/services/auth_service.dart';
-import 'package:farmtec/features/farm/presentation/providers/farm_provider.dart';
-import 'package:farmtec/features/farm_selection/presentation/screens/farm_selection_screen.dart';
-import 'package:provider/provider.dart';
 import 'package:farmtec/features/auth/presentation/screens/login_screen.dart';
 import 'package:farmtec/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:flutter/material.dart';
@@ -86,17 +82,10 @@ class _SplashBodyState extends State<SplashBody> with TickerProviderStateMixin {
       if (!mounted) return;
       final seen = await PreferencesService.isOnboardingSeen();
       if (!mounted) return;
-      final auth = context.read<AuthService>();
-      final restored = await auth.restoreSession();
-      if (!mounted) return;
-      if (restored) {
-        await context.read<FarmProvider>().refresh();
-      }
-      if (!mounted) return;
-      final destination = restored
-          ? FarmSelectionScreen.routeName
-          : (seen ? LoginScreen.routeName : OnboardingScreen.routeName);
-      Navigator.pushReplacementNamed(context, destination);
+      Navigator.pushReplacementNamed(
+        context,
+        seen ? LoginScreen.routeName : OnboardingScreen.routeName,
+      );
     });
   }
 
@@ -128,6 +117,16 @@ class _SplashBodyState extends State<SplashBody> with TickerProviderStateMixin {
             opacity: fadeOutOpacity.clamp(0.0, 1.0),
             child: Stack(
               children: [
+                Positioned.fill(
+                  child: Opacity(
+                    opacity: 0.75,
+                    child: Image.asset(
+                      'assets/images/splash_illus.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+
                 SplashParticles(
                   particleAnimation: _particleCtrl,
                   iconScale: _iconScale,

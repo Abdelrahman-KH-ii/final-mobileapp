@@ -105,12 +105,12 @@ class FarmStatCard extends StatelessWidget {
                         alignment: AlignmentDirectional.bottomEnd,
                         child: _pill(context, footer!, footerIcon),
                       )
-                    else if (actionLabel != null)
+                    else if (actionLabel != null && onAction != null)
                       Align(
                         alignment: AlignmentDirectional.bottomEnd,
                         child: GestureDetector(
                           onTap: onAction,
-                          child: _pill(context, actionLabel!, actionIcon),
+                          child: _iconOnlyAction(context),
                         ),
                       ),
                   ],
@@ -136,6 +136,23 @@ class FarmStatCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Icon(icon, color: Colors.white, size: 22),
+    );
+  }
+
+  Widget _iconOnlyAction(BuildContext context) {
+    final colors = context.appColors;
+    final pillBg = isDark ? colors.chipBg : accentColor.withAlpha(18);
+    final pillFg = isDark ? colors.iconAccent : accentColor;
+    final pillBorder = isDark ? colors.outline : accentColor.withAlpha(50);
+
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: pillBg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: pillBorder),
+      ),
+      child: Icon(actionIcon ?? Icons.map_outlined, size: 14, color: pillFg),
     );
   }
 

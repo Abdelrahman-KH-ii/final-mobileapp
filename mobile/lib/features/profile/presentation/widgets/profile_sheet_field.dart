@@ -9,8 +9,6 @@ class ProfileSheetField extends StatelessWidget {
   final IconData icon;
   final bool obscure;
   final bool isDark;
-  final TextEditingController? controller;
-  final bool readOnly;
 
   const ProfileSheetField(
     this.label,
@@ -19,16 +17,12 @@ class ProfileSheetField extends StatelessWidget {
     super.key,
     this.obscure = false,
     required this.isDark,
-    this.controller,
-    this.readOnly = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: controller,
       obscureText: obscure,
-      readOnly: readOnly,
       style: AppFonts.font(
         fontSize: 14,
         color: isDark ? Pallete.darkTextPrimary : Pallete.primary,

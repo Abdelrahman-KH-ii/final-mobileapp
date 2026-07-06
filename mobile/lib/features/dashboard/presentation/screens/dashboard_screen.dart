@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:farmtec/core/themes/app_fonts.dart';
 
 import 'package:farmtec/core/l10n/app_localizations.dart';
+import 'package:farmtec/core/services/soil_health_service.dart';
 import 'package:farmtec/core/themes/app_theme_colors.dart';
 import 'package:farmtec/core/themes/pallete.dart';
 import 'package:farmtec/features/dashboard/presentation/widgets/add_task_sheet.dart';
@@ -50,10 +51,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     'assets/images/market_illus.png',
   ];
 
-
+  static const _soilMetrics = <SoilMetricModel>[
+    SoilMetricModel(label: 'ph_level', value: '6.8', progress: 0.68),
+    SoilMetricModel(label: 'organic_matter', value: '2.9%', progress: null),
+    SoilMetricModel(label: 'nitrogen', value: 'Medium', progress: null),
+    SoilMetricModel(label: 'texture', value: 'Loam', progress: null),
+  ];
 
   String? _loadedFarmId;
   List<Map<String, dynamic>> _tasks = [];
+  double _soilScore = 0;
 
   @override
   void didChangeDependencies() {
@@ -196,19 +203,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final farmService = Provider.of<FarmProvider>(context);
     final farm = farmService.selectedFarm;
     final crop = farm?.crop ?? 'Wheat';
+    final soilHealthService = Provider.of<SoilHealthService>(context);
+    if (farm != null && mounted) {
+      Future.microtask(() async {
+        final score = await soilHealthService.getScoreForLocation(
+          lat: farm.lat,
+          lng: farm.lng,
+        );
+        if (mounted && (_soilScore - score).abs() > 0.0001) {
+          setState(() => _soilScore = score);
+        }
+      });
+    }
     _ensurePricesLoaded(crop);
-
-    final double dynamicPh = farm?.ph ?? 6.8;
-    final double dynamicMoisture = farm?.soilMoisture ?? 45.0;
-    final String dynamicNitrogen = farm?.nitrogen != null ? '${farm!.nitrogen!.round()} ppm' : 'Medium';
-    final String dynamicTexture = farm?.soilType.isNotEmpty == true ? farm!.soilType : 'Loam';
-
-    final soilMetrics = <SoilMetricModel>[
-      SoilMetricModel(label: 'ph_level', value: dynamicPh.toStringAsFixed(1), progress: (dynamicPh / 14.0).clamp(0.0, 1.0)),
-      SoilMetricModel(label: 'moisture', value: '${dynamicMoisture.round()}%', progress: (dynamicMoisture / 100.0).clamp(0.0, 1.0)),
-      SoilMetricModel(label: 'nitrogen', value: dynamicNitrogen, progress: farm?.nitrogen != null ? (farm!.nitrogen! / 100.0).clamp(0.0, 1.0) : null),
-      SoilMetricModel(label: 'texture', value: dynamicTexture, progress: null),
-    ];
     final textColor = colors.textPrimary;
     final subColor = colors.textSecondary;
     final cardColor = colors.card;
@@ -412,12 +419,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 isDark: isDark,
                 cardColor: cardColor,
                 child: SoilCard(
-                  metrics: soilMetrics,
+                  metrics: _soilMetrics,
                   isDark: isDark,
                   textColor: textColor,
-                  overallHealth: dynamicMoisture / 100.0,
-                  overallValue: '${dynamicMoisture.round()}%',
-                  overallLabelKey: 'moisture',
+                  overallHealth: (_soilScore / 100).clamp(0.0, 1.0),
+                  overallValue: '${l.convertNumbers(_soilScore.toStringAsFixed(0))}%',
+                  overallLabelKey: 'overall_soil_health',
                 ),
               ),
               const SizedBox(height: 14),
@@ -586,6 +593,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _showAddTaskSheet() {
     final farm = Provider.of<FarmProvider>(context, listen: false).selectedFarm;
+    final soilHealthService = Provider.of<SoilHealthService>(context, listen: false);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

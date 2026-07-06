@@ -40,8 +40,9 @@ class MarketCard extends StatelessWidget {
   String _priceLabel(AppLocalizations l, double? rawPrice, String fallback) {
     if (rawPrice == null) return l.convertNumbers(fallback);
     final amount = l.convertNumbers(rawPrice.toStringAsFixed(2));
-    if (l.isArabic) return '$amount د.إ${l.tr('per_ton')}';
-    return '\$$amount${l.tr('per_ton')}';
+    final currency = l.tr('currency_egp');
+    if (l.isArabic) return '$amount $currency ${l.tr('per_ton')}';
+    return '$currency $amount${l.tr('per_ton')}';
   }
 
   Color _panelBg(AppThemeColors colors) =>
@@ -80,10 +81,12 @@ class MarketCard extends StatelessWidget {
         final isUp = entry['isUp'] as bool? ?? true;
         final badgeBg = isUp ? colors.marketUpBg : colors.marketDownBg;
         final badgeFg = isUp ? colors.marketUpText : colors.marketDownText;
+        // Multiply current market raw value by 10 for dashboard display per request
         final rawPrice = (entry['rawValue'] as num?)?.toDouble();
+        final displayedPrice = rawPrice != null ? rawPrice * 10 : null;
         final priceText = _priceLabel(
           l,
-          rawPrice,
+          displayedPrice,
           entry['price']?.toString() ?? '—',
         );
         final changeText = l.convertNumbers(entry['change']?.toString() ?? '');

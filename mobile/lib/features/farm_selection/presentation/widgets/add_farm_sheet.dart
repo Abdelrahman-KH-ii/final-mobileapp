@@ -12,7 +12,6 @@ import 'package:farmtec/features/farm_selection/presentation/widgets/farm_sheet_
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
@@ -312,7 +311,7 @@ class _AddFarmSheetState extends State<AddFarmSheet> {
                         crop: _selectedCrop,
                         area: '$areaHa ha',
                         health: 'healthy',
-                        lastScan: l.tr('done'),
+                        lastScan: '',
                         lat: double.tryParse(_latCtrl.text) ?? 0,
                         lng: double.tryParse(_lngCtrl.text) ?? 0,
                         plantedAt: _plantedAt,

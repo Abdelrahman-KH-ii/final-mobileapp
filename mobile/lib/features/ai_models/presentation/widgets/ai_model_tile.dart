@@ -42,6 +42,8 @@ class AiModelTile extends StatelessWidget {
       case Icons.biotech_rounded:
       case Icons.bug_report_rounded:
         return const Color(0xFF6A994E); // plant green
+      case Icons.grain_rounded:
+        return const Color(0xFF8B5A2B); // warm grain/soil brown
       default:
         return Pallete.primary;
     }

@@ -48,7 +48,7 @@ abstract class Pallete {
   static const Color success = Color(0xFF22C55E);
 
   /// Unified green for AI model actions (run buttons, stats, accents).
-  static const Color aiModelGreen = success;
+  static const Color aiModelGreen = secondary;
   static const Color error = Color(0xFFBA1A1A);
   static const Color warning = Color(0xFFF59E0B);
   static const Color info = Color(0xFF0EA5E9);

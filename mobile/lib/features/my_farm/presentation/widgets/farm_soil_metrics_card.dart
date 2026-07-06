@@ -1,9 +1,11 @@
 import 'package:farmtec/core/l10n/app_localizations.dart';
+import 'package:farmtec/core/services/soil_health_service.dart';
 import 'package:farmtec/core/themes/app_fonts.dart';
 import 'package:farmtec/core/themes/pallete.dart';
-import 'package:farmtec/features/farm/domain/entities/farm.dart';
+import 'package:farmtec/features/farm/presentation/providers/farm_provider.dart';
 import 'package:farmtec/features/my_farm/presentation/widgets/my_farm_card_style.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class _SoilDetail {
   final IconData icon;
@@ -22,7 +24,6 @@ class _SoilDetail {
 }
 
 class FarmSoilMetricsCard extends StatelessWidget {
-  final Farm? farm;
   final bool isDark;
   final Color cardColor;
   final Color textColor;
@@ -30,7 +31,6 @@ class FarmSoilMetricsCard extends StatelessWidget {
 
   const FarmSoilMetricsCard({
     super.key,
-    this.farm,
     required this.isDark,
     required this.cardColor,
     required this.textColor,
@@ -40,138 +40,146 @@ class FarmSoilMetricsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    
-    final double dynamicPh = farm?.ph ?? 6.8;
-    final double dynamicMoisture = farm?.soilMoisture ?? 45.0;
-    final String dynamicNitrogen = farm?.nitrogen != null ? '${farm!.nitrogen!.round()} ppm' : l.tr('medium');
-    final String dynamicTexture = farm?.soilType.isNotEmpty == true ? farm!.soilType : 'Loam';
-
+    final farm = Provider.of<FarmProvider>(context, listen: false).selectedFarm;
+    final soilHealthService = Provider.of<SoilHealthService>(context, listen: false);
+    final scoreFuture = farm != null
+        ? soilHealthService.getScoreForLocation(lat: farm.lat, lng: farm.lng)
+        : Future.value(0.0);
     final details = [
       _SoilDetail(
         icon: Icons.thermostat_rounded,
         labelKey: 'ph_level',
-        value: dynamicPh.toStringAsFixed(1),
-        statusKey: (dynamicPh >= 6.0 && dynamicPh <= 7.5) ? 'optimal' : null,
-        color: const Color(0xFF7CB342),
+        value: '6.8',
+        statusKey: 'optimal',
+        color: Color(0xFF7CB342),
       ),
       _SoilDetail(
-        icon: Icons.water_drop_rounded,
-        labelKey: 'moisture',
-        value: '${dynamicMoisture.round()}%',
-        color: const Color(0xFF4CAF50),
+        icon: Icons.grass_rounded,
+        labelKey: 'organic_matter',
+        value: '2.9%',
+        color: Color(0xFF4CAF50),
       ),
       _SoilDetail(
         icon: Icons.eco_rounded,
         labelKey: 'nitrogen',
-        value: dynamicNitrogen,
-        color: const Color(0xFF26A69A),
+        value: l.tr('medium'),
+        color: Color(0xFF26A69A),
       ),
       _SoilDetail(
         icon: Icons.layers_rounded,
         labelKey: 'texture',
-        value: dynamicTexture,
-        color: const Color(0xFF42A5F5),
+        value: 'Loam',
+        color: Color(0xFF42A5F5),
       ),
     ];
 
-    return Container(
-      decoration: myFarmCardDecoration(isDark, cardColor),
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l.tr('soil_analysis_score'),
-            style: AppFonts.font(fontSize: 12, color: subColor),
-          ),
-          const SizedBox(height: 12),
-          Row(
+    return FutureBuilder<double>(
+      future: scoreFuture,
+      builder: (context, snapshot) {
+        final score = snapshot.data ?? 0.0;
+        final progress = (score / 100).clamp(0.0, 1.0);
+        final scoreText = '${l.convertNumbers(score.toStringAsFixed(0))}%';
+
+        return Container(
+          decoration: myFarmCardDecoration(isDark, cardColor),
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${dynamicMoisture.round()}%',
-                      style: AppFonts.font(
-                        fontSize: 36,
-                        fontWeight: FontWeight.w800,
-                        color: textColor,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      l.tr('moisture'),
-                      style: AppFonts.font(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: subColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 72,
-                height: 72,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    CircularProgressIndicator(
-                      value: dynamicMoisture / 100.0,
-                      strokeWidth: 8,
-                      valueColor: AlwaysStoppedAnimation(
-                        isDark ? Colors.greenAccent : const Color(0xFF4CAF50),
-                      ),
-                      backgroundColor: isDark
-                          ? Colors.white.withOpacity(0.08)
-                          : const Color(0xFFE8F5E9),
-                    ),
-                    Center(
-                      child: Text(
-                        '${dynamicMoisture.round()}%',
-                        style: AppFonts.font(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: textColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: _soilDetailTile(l, details[0], textColor, subColor),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _soilDetailTile(l, details[1], textColor, subColor),
-                  ),
-                ],
+              Text(
+                l.tr('soil_analysis_score'),
+                style: AppFonts.font(fontSize: 12, color: subColor),
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
-                    child: _soilDetailTile(l, details[2], textColor, subColor),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          scoreText,
+                          style: AppFonts.font(
+                            fontSize: 36,
+                            fontWeight: FontWeight.w800,
+                            color: textColor,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          l.tr('overall_soil_health'),
+                          style: AppFonts.font(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: subColor,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _soilDetailTile(l, details[3], textColor, subColor),
+                  SizedBox(
+                    width: 72,
+                    height: 72,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CircularProgressIndicator(
+                          value: progress,
+                          strokeWidth: 8,
+                          valueColor: AlwaysStoppedAnimation(
+                            isDark ? Colors.greenAccent : const Color(0xFF4CAF50),
+                          ),
+                          backgroundColor: isDark
+                              ? Colors.white.withOpacity(0.08)
+                              : const Color(0xFFE8F5E9),
+                        ),
+                        Center(
+                          child: Text(
+                            scoreText,
+                            style: AppFonts.font(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: textColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _soilDetailTile(l, details[0], textColor, subColor),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _soilDetailTile(l, details[1], textColor, subColor),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _soilDetailTile(l, details[2], textColor, subColor),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _soilDetailTile(l, details[3], textColor, subColor),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -204,7 +212,7 @@ class FarmSoilMetricsCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l.tr(detail.labelKey) ?? detail.labelKey,
+                  l.tr(detail.labelKey),
                   style: AppFonts.font(fontSize: 12, color: subColor),
                 ),
                 const SizedBox(height: 4),

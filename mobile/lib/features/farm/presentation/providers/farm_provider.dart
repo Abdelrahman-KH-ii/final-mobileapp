@@ -25,10 +25,6 @@ class FarmProvider extends ChangeNotifier {
   bool get hasFarms => _farms.isNotEmpty;
 
   Future<void> _load() async {
-    final repo = _repository;
-    if (repo is FarmRepositoryImpl) {
-      await repo.refreshFromServer();
-    }
     _farms = await _repository.getFarms();
     _selectedFarm = await _repository.getSelectedFarm();
     final history = _historyService;
@@ -37,8 +33,6 @@ class FarmProvider extends ChangeNotifier {
     }
     notifyListeners();
   }
-
-  Future<void> refresh() => _load();
 
   Future<void> selectFarm(String farmId) async {
     await _repository.selectFarm(farmId);

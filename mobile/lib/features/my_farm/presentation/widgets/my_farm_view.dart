@@ -16,6 +16,7 @@ import 'package:farmtec/features/my_farm/presentation/widgets/farm_stat_card.dar
 import 'package:farmtec/features/my_farm/presentation/widgets/my_farm_card_style.dart';
 import 'package:farmtec/features/my_farm/presentation/screens/full_map_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class MyFarmView extends StatelessWidget {
@@ -55,6 +56,17 @@ class MyFarmView extends StatelessWidget {
               ),
             })
             : null;
+
+    final scanOps = farmOps
+        .where((op) => op.type == OperationType.diseaseScan || op.type == OperationType.ndviScan)
+        .toList();
+    final lastScanOp = scanOps.isNotEmpty ? scanOps.first : null;
+    final lastScanValue = lastScanOp != null
+        ? _formatScanDate(lastScanOp.timestamp, l)
+        : l.tr('no_scans_yet');
+    final lastScanFooter = lastScanOp != null
+        ? _scanTimeAgo(lastScanOp.timestamp, l)
+        : null;
 
     return Stack(
       children: [
@@ -234,14 +246,14 @@ class MyFarmView extends StatelessWidget {
                 children: [
                   FarmStatCard(
                     icon: Icons.schedule_rounded,
-                    value: farm.lastScan,
+                    value: lastScanValue,
                     label: l.tr('last_scan'),
                     accentColor: const Color(0xFF8B6BAF),
                     backgroundColor: colors.statPurpleTint,
                     isDark: isDark,
-                    footer: l.trParams('time_ago_days', {
-                      'd': l.convertNumbers('3'),
-                    }),
+                    footer: lastScanFooter,
+                    footerIcon:
+                        lastScanOp != null ? Icons.access_time_rounded : null,
                   ),
                   const SizedBox(width: 8),
                   FarmStatCard(
@@ -275,7 +287,6 @@ class MyFarmView extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               FarmSoilMetricsCard(
-                farm: farm,
                 isDark: isDark,
                 cardColor: cardColor,
                 textColor: textColor,
@@ -371,6 +382,28 @@ class MyFarmView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  String _formatScanDate(DateTime timestamp, AppLocalizations l) {
+    final locale = l.isArabic ? 'ar' : 'en';
+    return l.convertNumbers(DateFormat.yMMMd(locale).format(timestamp));
+  }
+
+  String _scanTimeAgo(DateTime timestamp, AppLocalizations l) {
+    final diff = DateTime.now().difference(timestamp);
+    if (diff.inMinutes < 60) {
+      return l.convertNumbers(
+        l.trParams('time_ago_minutes', {'n': diff.inMinutes.toString()}),
+      );
+    }
+    if (diff.inHours < 24) {
+      return l.convertNumbers(
+        l.trParams('time_ago_hours', {'h': diff.inHours.toString()}),
+      );
+    }
+    return l.convertNumbers(
+      l.trParams('time_ago_days', {'d': diff.inDays.toString()}),
     );
   }
 
